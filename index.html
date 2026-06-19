@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoteNow - Élection en ligne sécurisée</title>
+  <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>🗳️ VoteNow</h1>
+      <p>Plateforme d'élection en ligne sécurisée et transparente</p>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <div class="container">
+      <button class="tab-btn active" data-tab="vote">Voter</button>
+      <button class="tab-btn" data-tab="results">Résultats</button>
+      <button class="tab-btn" data-tab="candidats">Candidats</button>
+      <button class="tab-btn" data-tab="admin">Admin</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Vote Tab -->
+    <section id="tab-vote" class="tab active">
+      <div class="container">
+        <div class="section-header">
+          <h2>Votez pour votre candidat</h2>
+          <p>Inscrivez-vous et votez en toute sécurité.</p>
+        </div>
+
+        <!-- Voter Registration -->
+        <div class="card">
+          <h3>Inscription électeur</h3>
+          <div class="card">
+            <h3>Vous ne savez pas comment voter ? cliquez sur ce bouton ci-dessous</h3>
+            <button style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" class="tab-btn1" onclick="tutot()">Voir comment voter</button>
+
+            <!-- Conteneur vidéo (caché au départ) -->
+            <div id="videoContainer" style="display:none; margin-top:10px;">
+              <video width="700" controls>
+                <source src="../video/tutot.mp4" type="video/mp4">
+                Votre navigateur ne supporte pas la vidéo.
+              </video>
+            </div>
+
+            <script>
+              function tutot() {
+                const btn = document.querySelector(".tab-btn1");
+                const video = document.getElementById("videoContainer");
+
+                if (video.style.display === "none") {
+                  video.style.display = "block";
+                  btn.textContent = "Fermer le tutoriel";
+                } else {
+                  video.style.display = "none";
+                  btn.textContent = "Voir comment voter";
+                }
+              }
+            </script>
+          </div>
+          <form id="voterRegistrationForm">
+            <div class="form-group">
+              <label for="voterFirstname">Prénom</label>
+              <input type="text" id="voterFirstname" required>
+            </div>
+            <div class="form-group">
+              <label for="voterLastname">Nom</label>
+              <input type="text" id="voterLastname" required>
+            </div>
+            <div class="form-group">
+              <label for="voterIne">INE (12 chiffres)</label>
+              <input type="text" id="voterIne" pattern="\d{12}" maxlength="12" required>
+              <small>Entrez exactement 12 chiffres (pas de lettres).</small>
+            </div>
+            <button type="submit" class="btn btn-primary">S'inscrire</button>
+          </form>
+          <div id="voterRegistrationMsg" class="message"></div>
+        </div>
+
+        <!-- Voter Identifier Display -->
+        <div id="voterIdentifierDisplay" class="hidden"></div>
+
+        <!-- Vote Form -->
+        <div class="card">
+          <h3>Formulaire de vote</h3>
+          <form id="voteForm">
+            <div class="form-group">
+              <label for="voteIdentifierId">Votre identifiant de vote</label>
+              <input type="text" id="voteIdentifierId" readonly required>
+            </div>
+            <div id="candidatListVote"></div>
+            <button type="submit" class="btn btn-primary">Voter</button>
+          </form>
+          <div id="voteMsg" class="message"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Tab -->
+    <section id="tab-results" class="tab">
+      <div class="container">
+        <div class="section-header">
+          <h2>Résultats en temps réel</h2>
+          <p>Consultez les résultats de l'élection.</p>
+        </div>
+        <div id="winnerBox" class="card"></div>
+        <div class="card">
+          <h3>Résultats détaillés</h3>
+          <div id="resultsTable"></div>
+          <div id="voteCount"></div>
+        </div>
+        <div class="card">
+          <h3>Graphique des votes</h3>
+          <div id="barChart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- candidats Tab -->
+    <section id="tab-candidats" class="tab">
+      <div class="container">
+        <div class="section-header">
+          <h2>Liste des candidats</h2>
+          <p>Découvrez les candidats et leurs projets.</p>
+        </div>
+        <div id="candidatsPageList"></div>
+      </div>
+    </section>
+
+    <!-- Admin Tab -->
+    <section id="tab-admin" class="tab">
+      <div id="admin-login" class="card">
+        <h3>Connexion administrateur</h3>
+        <form id="admin-login-form">
+          <div class="form-group">
+            <label for="admin-id">ID administrateur</label>
+            <input type="text" id="admin-id" required>
+          </div>
+          <div class="form-group">
+            <label for="admin-code">Code d'accès</label>
+            <input type="password" id="admin-code" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
+        <div id="admin-login-message" class="message"></div>
+      </div>
+
+      <div id="admin-panel" class="hidden">
+        <div class="admin-header">
+          <h3>Panel administrateur</h3>
+          <button id="admin-logout" class="btn btn-danger">Déconnexion</button>
+        </div>
+        <div id="admin-info"></div>
+
+        <!-- Add candidat -->
+        <div class="card">
+          <h3>Ajouter un candidat</h3>
+          <form id="createcandidatForm">
+            <div class="form-group">
+              <label for="candidatName">Nom du candidat</label>
+              <input type="text" id="candidatName" required>
+            </div>
+            <div class="form-group">
+              <label for="candidatSlogan">Slogan</label>
+              <input type="text" id="candidatSlogan" required>
+            </div>
+            <div class="form-group">
+              <label for="candidatPhotoFile">Photo</label>
+              <input type="file" id="candidatPhotoFile" accept="image/*" required>
+            </div>
+            <div class="form-group">
+              <label for="candidatPdfFile">Projet (PDF)</label>
+              <input type="file" id="candidatPdfFile" accept=".pdf" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+          </form>
+          <div id="adminMsg" class="message"></div>
+        </div>
+
+        <!-- candidat List -->
+        <div class="card">
+          <h3>Gestion des candidats</h3>
+          <div id="candidatListAdmin"></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+          <h3>Statistiques</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <div class="stat-box">
+              <div class="label">Votes</div>
+              <div class="value" id="adminVoteCount">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Électeurs</div>
+              <div class="value" id="adminVoterCount">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Participation</div>
+              <div class="value" id="adminParticipationRate">0%</div>
+            </div>
+          </div>
+          <div id="adminVotesList"></div>
+          <div style="margin-top: 20px;">
+            <button id="adminResetVotesBtn" class="btn btn-danger">Réinitialiser les votes</button>
+            <button id="adminExportVotesBtn" class="btn btn-primary">Exporter résultats</button>
+            <button id="adminViewReportBtn" class="btn btn-primary">Voir rapport</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2025 VoteNow - Créé par Madiop GUEYE. Tous droits réservés.</p>
+      <p class="footer-note">Plateforme sécurisée pour élections démocratiques.</p>
+    </div>
+  </footer>
+
+  <!-- PDF Modal -->
+  <div id="pdfModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="pdfCloseBtn" class="close">&times;</span>
+      <iframe id="pdfViewer" src="" width="100%" height="600px"></iframe>
+      <div style="text-align: center; margin-top: 10px;">
+        <a id="pdfDownloadLink" class="btn btn-primary" download>Télécharger PDF</a>
+        <button id="pdfOpenNewTab" class="btn btn-primary">Ouvrir dans un nouvel onglet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit candidat Modal -->
+  <div id="editcandidatModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="editCloseBtn" class="close">&times;</span>
+      <h3>Modifier le candidat</h3>
+      <form id="editcandidatForm">
+        <div class="form-group">
+          <label for="editcandidatName">Nom</label>
+          <input type="text" id="editcandidatName" required>
+        </div>
+        <div class="form-group">
+          <label for="editcandidatSlogan">Slogan</label>
+          <input type="text" id="editcandidatSlogan" required>
+        </div>
+        <div class="form-group">
+          <label for="editcandidatPhotoFile">Nouvelle photo (optionnel)</label>
+          <input type="file" id="editcandidatPhotoFile" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label for="editcandidatPdfFile">Nouveau PDF (optionnel)</label>
+          <input type="file" id="editcandidatPdfFile" accept=".pdf">
+        </div>
+        <button type="submit" class="btn btn-primary">Modifier</button>
+        <button type="button" id="editCancelBtn" class="btn">Annuler</button>
+      </form>
+      <div id="editMsg" class="message"></div>
+    </div>
+  </div>
+
+  <script src="../jss/ap.js"></script>
+</body>
+
+</html>
